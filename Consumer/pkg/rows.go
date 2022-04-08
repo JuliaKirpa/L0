@@ -1,27 +1,22 @@
-package main
+package pkg
 
 import (
-	"fmt"
-	stan "github.com/nats-io/stan.go"
-	"sync"
+	"github.com/gin-gonic/gin"
+	"github.com/nats-io/stan.go"
+	"net/http"
 )
 
-func main() {
+func (h *Handler) getAllRows(c *gin.Context) {
 	sc, err := stan.Connect("prod", "sub-1")
 	if err != nil {
 		panic(err)
 	}
 	defer sc.Close()
-	wg := sync.WaitGroup{}
-	wg.Add(1)
-	// Simple Async Subscriber
 	sub, err := sc.Subscribe("testing", func(m *stan.Msg) {
-		fmt.Printf("Received a message: %s\n", string(m.Data))
+		c.JSON(http.StatusOK, gin.H{"Received a message: %s\n": string(m.Data)})
 	})
 	if err != nil {
 		panic(err)
 	}
-
 	defer sub.Unsubscribe()
-	wg.Wait()
 }

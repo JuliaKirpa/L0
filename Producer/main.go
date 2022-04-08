@@ -17,5 +17,4 @@ func main() {
 		sc.Publish("testing", []byte("Hello from iteration "+strconv.Itoa(i)))
 		time.Sleep(2 * time.Second)
 	}
-
 }
