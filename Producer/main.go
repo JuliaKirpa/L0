@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	sc, err := stan.Connect("prod", "clientID")
+	sc, err := stan.Connect("prod", "client")
 	if err != nil {
 		panic(err)
 	}
