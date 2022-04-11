@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  app:
+    container_name: nats_str_cl
+    build: .
+    ports:
+      - 8080:8080
+    restart: on-failure
+    depends_on:
+      - db
+    environment:
+      - DB_PASSWORD=qwerty
+  db:
+    container_name: postg_db
+    restart: always
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=hypernova
+      - POSTGRES_PASSWORD=qwerty
+    ports:
+      - 5432:5432
+    volumes:
+      - database_postgres:/var/lib/postgresql/data
+
+volumes:
+  database_postgres:
