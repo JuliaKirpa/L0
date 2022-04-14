@@ -12,7 +12,7 @@ services:
     environment:
       - DB_PASSWORD=qwerty
   db:
-    container_name: postg_db
+    container_name: db_pg
     restart: always
     image: postgres:latest
     environment:
