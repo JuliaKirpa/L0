@@ -1,0 +1,9 @@
+port: "8080"
+
+db:
+  host: "localhost"
+  user: "hypernova"
+  password: "qwerty"
+  dbname: "wborders"
+  port: "5432"
+  sslmode: "disable"

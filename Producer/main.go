@@ -7,14 +7,14 @@ import (
 )
 
 func main() {
-	sc, err := stan.Connect("prod", "client")
+	sc, err := stan.Connect("prod", "static")
 	if err != nil {
 		panic(err)
 	}
 	defer sc.Close()
 
 	for i := 0; i <= 100; i++ {
-		sc.Publish("testing", []byte("Hello from iteration "+strconv.Itoa(i)))
+		sc.Publish("static", []byte("Hello from iteration "+strconv.Itoa(i)))
 		time.Sleep(2 * time.Second)
 	}
 }

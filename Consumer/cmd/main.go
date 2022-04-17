@@ -2,28 +2,37 @@ package main
 
 import (
 	"NatsMC/Consumer/api"
-	"NatsMC/Consumer/pkg"
-	"NatsMC/models"
+	"NatsMC/Consumer/pkg/handler"
+	"NatsMC/Consumer/pkg/repository"
 	"context"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"github.com/spf13/viper"
 	"log"
 )
 
 func main() {
-	dsn := "host=db_pg user=hypernova password=qwerty dbname=kkhalasar port=5432 sslmode=disable"
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		panic(err)
+	if err := InitConfig(); err != nil {
+		log.Fatalf("error initialization config %s", err.Error())
 	}
-	err = db.AutoMigrate(&models.Order{}, &models.Delivery{}, &models.Payment{}, &models.Items{})
+
+	dsn := "host=" + viper.GetString("db.host") + "user=" + viper.GetString("db.user") +
+		"password=" + viper.GetString("db.password") + "dbname=" + viper.GetString("db.dbname") +
+		"port=" + viper.GetString("db.port") + "sslmode=" + viper.GetString("db.sslmode")
+
+	db, err := repository.GormConnect(dsn)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Err from gorm connection %s", err)
 	}
-	handler := pkg.NewHandler()
+
+	handler := handler.NewHandler()
 	server := new(api.Server)
-	if err := server.Run("8080", handler.InitRoutes()); err != nil {
+	if err := server.Run("8080", handler.InitRoutes(), db); err != nil {
 		log.Fatalf("error to running server %s", err.Error())
 	}
 	defer server.Shutdown(context.Background())
+}
+
+func InitConfig() error {
+	viper.AddConfigPath("configs")
+	viper.SetConfigName("config")
+	return viper.ReadInConfig()
 }
