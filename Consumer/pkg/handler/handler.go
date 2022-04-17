@@ -1,19 +1,20 @@
 package handler
 
 import (
+	"NatsMC/Consumer/pkg/service"
 	"NatsMC/models"
-	"encoding/json"
 	"github.com/alexandrevicenzi/go-sse"
 	"github.com/gin-gonic/gin"
-	"log"
+	"github.com/nats-io/stan.go"
 	"time"
 )
 
 type Handler struct {
+	service *service.Service
 }
 
-func NewHandler() *Handler {
-	return &Handler{}
+func NewHandler(service *service.Service) *Handler {
+	return &Handler{service: service}
 }
 
 func (h *Handler) InitRoutes() *gin.Engine {
@@ -22,23 +23,30 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 	router := gin.Default()
 	router.StaticFile("/", "static/index.html")
-
+	//что-то абсолютно непонятное, но работает, но вообще не на этом пути ааааааааа
 	router.GET("/events/:channel", func(c *gin.Context) {
 		s.ServeHTTP(c.Writer, c.Request)
 	})
-	router.GET("/events/:id", h.getById)
+	router.GET("/:id", h.getById)
+	//подключаемся к nats-str
+	sc, err := stan.Connect("prod", "sub-2")
+	if err != nil {
+		panic(err)
+	}
+	defer sc.Close()
 
-	byte, _ := json.Marshal(order)
-
-	go func() {
-		for {
-			s.SendMessage("", sse.SimpleMessage(string(byte)))
-			time.Sleep(5 * time.Second)
-		}
-	}()
-
-	log.Println("Listening at :3000")
-	router.Run("localhost:3000")
+	sub, err := sc.Subscribe("static", func(m *stan.Msg) {
+		go func() {
+			for {
+				s.SendMessage("", sse.SimpleMessage(string(m.Data)))
+				time.Sleep(5 * time.Second)
+			}
+		}()
+	})
+	if err != nil {
+		panic(err)
+	}
+	defer sub.Unsubscribe()
 
 	return router
 }

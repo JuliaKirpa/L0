@@ -2,18 +2,15 @@ package api
 
 import (
 	"context"
-	"gorm.io/gorm"
 	"net/http"
 	"time"
 )
 
 type Server struct {
-	db         *gorm.DB
 	httpServer *http.Server
 }
 
-func (s *Server) Run(port string, handler http.Handler, db *gorm.DB) error {
-	s.db = db
+func (s *Server) Run(port string, handler http.Handler) error {
 	s.httpServer = &http.Server{
 		Addr:           ":" + port,
 		Handler:        handler,
