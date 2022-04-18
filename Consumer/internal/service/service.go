@@ -1,6 +1,8 @@
 package service
 
-import "NatsMC/Consumer/pkg/repository"
+import (
+	"NatsMC/Consumer/internal/repository"
+)
 
 type GetOrders interface {
 }

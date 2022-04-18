@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"NatsMC/models"
+	"NatsMC/Consumer/models"
 	"fmt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

@@ -2,9 +2,9 @@ package main
 
 import (
 	"NatsMC/Consumer/api"
-	"NatsMC/Consumer/pkg/handler"
-	"NatsMC/Consumer/pkg/repository"
-	"NatsMC/Consumer/pkg/service"
+	"NatsMC/Consumer/internal/handler"
+	repository2 "NatsMC/Consumer/internal/repository"
+	"NatsMC/Consumer/internal/service"
 	"context"
 	"github.com/spf13/viper"
 	"log"
@@ -19,12 +19,12 @@ func main() {
 		"password=" + viper.GetString("db.password") + "dbname=" + viper.GetString("db.dbname") +
 		"port=" + viper.GetString("db.port") + "sslmode=" + viper.GetString("db.sslmode")
 
-	db, err := repository.GormConnect(dsn)
+	db, err := repository2.GormConnect(dsn)
 	if err != nil {
 		log.Fatalf("Err from gorm connection %s", err)
 	}
 
-	repos := repository.NewRepository(db)
+	repos := repository2.NewRepository(db)
 	services := service.NewService(repos)
 	handlers := handler.NewHandler(services)
 
