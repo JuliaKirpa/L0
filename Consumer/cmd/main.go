@@ -7,7 +7,6 @@ import (
 	"NatsMC/Consumer/internal/handler"
 	"NatsMC/Consumer/internal/nats"
 	"NatsMC/Consumer/internal/repository"
-	"NatsMC/Consumer/internal/service"
 	"context"
 	"log"
 	"os"
@@ -40,8 +39,7 @@ func main() {
 	}
 
 	repos := repository.NewRepository(db, caches)
-	services := service.NewService(repos)
-	handlers := handler.NewHandler(services)
+	handlers := handler.NewHandler(repos)
 
 	server := new(api.Server)
 

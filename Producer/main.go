@@ -19,31 +19,6 @@ func main() {
 	}
 }
 
-//s := sse.NewServer(nil)
-//defer s.Shutdown()
-//
-////что-то абсолютно непонятное, но работает, но вообще не на этом пути ааааааааа
-//router.GET("/events/:channel", func(c *gin.Context) {
-//	s.ServeHTTP(c.Writer, c.Request)
-//})
-//sc, err := stan.Connect("prod", "sub-2")
-//if err != nil {
-//panic(err)
-//}
-//defer sc.Close()
-//
-//sub, err := sc.Subscribe("static", func(m *stan.Msg) {
-//	go func() {
-//		for {
-//			s.SendMessage("", sse.SimpleMessage(string(m.Data)))
-//			time.Sleep(5 * time.Second)
-//		}
-//	}()
-//})
-//if err != nil {
-//panic(err)
-//}
-//defer sub.Unsubscribe()
 //var order = &models.Order{
 //	OrderUid:    "b563feb7b2b84b6test",
 //	TrackNumber: "WBILMTESTTRACK",

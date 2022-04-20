@@ -1,14 +1,14 @@
 package repository
 
-import "NatsMC/Consumer/internal/cache"
-
-type GetOrders interface {
-}
+import (
+	"NatsMC/Consumer/internal/cache"
+)
 
 type Repository struct {
-	GetOrders
+	Db    DataBase
+	Cache cache.Cacher
 }
 
 func NewRepository(db *Database, cache *cache.Cache) *Repository {
-	return &Repository{}
+	return &Repository{Db: db, Cache: cache}
 }

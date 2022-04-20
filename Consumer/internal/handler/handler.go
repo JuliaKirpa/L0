@@ -1,22 +1,18 @@
 package handler
 
 import (
-	"NatsMC/Consumer/internal/cache"
 	"NatsMC/Consumer/internal/nats"
 	"NatsMC/Consumer/internal/repository"
-	"NatsMC/Consumer/internal/service"
 	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
-	Service *service.Service
-	Cache   cache.Cacher
-	Db      repository.DataBase
-	Nats    nats.Streaming
+	Repo *repository.Repository
+	Nats nats.Streaming
 }
 
-func NewHandler(service *service.Service) *Handler {
-	return &Handler{Service: service}
+func NewHandler(repository *repository.Repository) *Handler {
+	return &Handler{Repo: repository}
 }
 
 func (h *Handler) InitRoutes() *gin.Engine {
