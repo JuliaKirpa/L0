@@ -8,6 +8,12 @@ import (
 	"gorm.io/gorm"
 )
 
+type DataBase interface {
+	InsertRow(order *models.Order) error
+	GetRowById(id uint) (*models.Order, error)
+	GetAllRows() (*[]models.Order, error)
+}
+
 type Database struct {
 	db *gorm.DB
 }
@@ -49,7 +55,8 @@ func (db *Database) GetAllRows() (*[]models.Order, error) {
 
 	err := db.db.Debug().Model(&models.Order{}).Limit(100).Find(&orders).Error
 	if err != nil {
-		return &orders, err
+		return nil, errors.New("can't get all rows from db")
+
 	}
-	return nil, errors.New("can't get all rows")
+	return &orders, nil
 }
