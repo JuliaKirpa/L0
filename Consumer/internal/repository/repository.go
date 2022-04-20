@@ -1,7 +1,5 @@
 package repository
 
-import "gorm.io/gorm"
-
 type GetOrders interface {
 }
 
@@ -9,6 +7,6 @@ type Repository struct {
 	GetOrders
 }
 
-func NewRepository(db *gorm.DB) *Repository {
+func NewRepository(db *Database) *Repository {
 	return &Repository{}
 }
