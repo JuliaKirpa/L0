@@ -6,12 +6,12 @@ import (
 	"errors"
 )
 
-func ValidateMessage(message []byte) error {
-	msg := &models.Order{}
+func ValidateMessage(message []byte) (*models.Order, error) {
+	msg := new(models.Order)
 
 	err := json.Unmarshal(message, msg)
 	if err != nil {
-		return errors.New("incorrect type of message")
+		return nil, errors.New("incorrect type of message")
 	}
-	return nil
+	return msg, nil
 }

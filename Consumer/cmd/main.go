@@ -3,7 +3,6 @@ package main
 import (
 	"NatsMC/Consumer/api"
 	"NatsMC/Consumer/configs"
-	"NatsMC/Consumer/internal/cache"
 	"NatsMC/Consumer/internal/handler"
 	"NatsMC/Consumer/internal/nats"
 	"NatsMC/Consumer/internal/repository"
@@ -27,7 +26,7 @@ func main() {
 		log.Fatalf("Err from gorm connection %s", err)
 	}
 
-	caches := cache.New()
+	caches := repository.New()
 	err = caches.Upload(ctx)
 	if err != nil {
 		log.Fatalf("cache wasn't uploaded: %s", err)

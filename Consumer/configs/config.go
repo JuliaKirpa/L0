@@ -14,7 +14,7 @@ type Config struct {
 }
 
 func InitConfig() (string, error) {
-	viper.AddConfigPath("configs")
+	viper.AddConfigPath("./Consumer/configs")
 	viper.SetConfigName("config")
 	err := viper.ReadInConfig()
 	if err != nil {
@@ -28,8 +28,8 @@ func InitConfig() (string, error) {
 		return "", err
 	}
 
-	dsn := "host=" + config.Db.Host + "user=" + config.Db.User + "password=" + config.Db.Password + "dbname=" + config.Db.Dbname +
-		"port=" + config.Db.Port + "sslmode=" + config.Db.Sslmode
+	dsn := "host=" + config.Db.Host + " user=" + config.Db.User + " password=" + config.Db.Password + " dbname=" + config.Db.Dbname +
+		" port=" + config.Db.Port + " sslmode=" + config.Db.Sslmode
 
 	return dsn, nil
 }

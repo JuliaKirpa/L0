@@ -1,14 +1,10 @@
 package repository
 
-import (
-	"NatsMC/Consumer/internal/cache"
-)
-
 type Repository struct {
 	Db    DataBase
-	Cache cache.Cacher
+	Cache Cacher
 }
 
-func NewRepository(db *Database, cache *cache.Cache) *Repository {
+func NewRepository(db *Database, cache *Cache) *Repository {
 	return &Repository{Db: db, Cache: cache}
 }

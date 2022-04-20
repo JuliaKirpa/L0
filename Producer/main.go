@@ -13,13 +13,13 @@ func main() {
 	}
 	defer sc.Close()
 
-	byteValue, err := ioutil.ReadFile("./model.json")
+	byteValue, err := ioutil.ReadFile("./Producer/model.json")
 	if err != nil {
 		panic(err)
 	}
 
 	for i := 0; i <= 100; i++ {
 		sc.Publish("static", byteValue)
-		time.Sleep(2 * time.Second)
+		time.Sleep(3 * time.Second)
 	}
 }

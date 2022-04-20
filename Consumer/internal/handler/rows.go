@@ -30,10 +30,17 @@ func (h *Handler) streamListen(c *gin.Context) {
 		c.Error(err)
 	}
 
-	err = pkg.ValidateMessage(message)
+	order, err := pkg.ValidateMessage(message)
 	if err != nil {
 		c.Error(err)
 	}
+
+	err = h.Repo.Db.InsertRow(order)
+	if err != nil {
+		c.Error(err)
+	}
+
+	h.Repo.Cache.Insert(order)
 
 	go func() {
 		for {

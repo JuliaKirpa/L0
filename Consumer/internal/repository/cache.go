@@ -1,7 +1,6 @@
-package cache
+package repository
 
 import (
-	"NatsMC/Consumer/internal/repository"
 	"NatsMC/Consumer/models"
 	"context"
 	"errors"
@@ -11,11 +10,12 @@ import (
 type Cacher interface {
 	Upload(context context.Context) error
 	GetById(id uint) (*models.Order, error)
+	Insert(order *models.Order)
 }
 
 type Cache struct {
 	sync.RWMutex
-	database *repository.Database
+	database *Database
 	orders   map[uint]models.Order
 }
 
@@ -30,15 +30,20 @@ func New() *Cache {
 	return &cache
 }
 
-func (c *Cache) Upload(context context.Context) error {
+func (c *Cache) Insert(order *models.Order) {
 	c.Lock()
 	defer c.Unlock()
 
+	c.orders[order.OrderID] = *order
+
+}
+
+func (c *Cache) Upload(context context.Context) error {
 	orders, err := c.database.GetAllRows()
 	if err != nil {
 		return err
 	}
-	for _, value := range *orders {
+	for _, value := range orders {
 		c.orders[value.OrderID] = value
 	}
 	return nil
