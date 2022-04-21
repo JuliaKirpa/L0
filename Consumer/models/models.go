@@ -1,8 +1,6 @@
 package models
 
-import (
-	"time"
-)
+import "time"
 
 type Order struct {
 	OrderID           uint      `gorm:"primaryKey" json:"order_id"`

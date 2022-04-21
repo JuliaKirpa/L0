@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/nats-io/stan.go"
+	"sync"
 )
 
 type Streaming interface {
@@ -14,8 +15,8 @@ type Connector struct {
 	Conn stan.Conn
 }
 
-func Connecting(cluster string, ctx context.Context) (*Connector, error) {
-	sc, err := stan.Connect(cluster, "sub-1")
+func Connecting(ctx context.Context) (*Connector, error) {
+	sc, err := stan.Connect("prod", "cl-2")
 	if err != nil {
 		return nil, err
 	}
@@ -23,16 +24,20 @@ func Connecting(cluster string, ctx context.Context) (*Connector, error) {
 }
 
 func (c *Connector) GetMessage() ([]byte, error) {
+	wg := sync.WaitGroup{}
+	wg.Add(1)
 	var message []byte
 
 	sub, err := c.Conn.Subscribe("static", func(m *stan.Msg) {
 		message = m.Data
+		wg.Done()
 	})
 	if err != nil {
 		return nil, errors.New("cant receive message")
 	}
-	sub.Unsubscribe()
 
+	wg.Wait()
+	sub.Unsubscribe()
 	return message, nil
 }
 

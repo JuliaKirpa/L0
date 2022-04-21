@@ -11,7 +11,7 @@ import (
 type DataBase interface {
 	InsertRow(order *models.Order) error
 	GetRowById(id uint) (*models.Order, error)
-	GetAllRows() ([]models.Order, error)
+	GetAllRows() (*[]models.Order, error)
 }
 
 type Database struct {
@@ -33,7 +33,7 @@ func GormConnect(dsn string) (*Database, error) {
 }
 
 func (db *Database) InsertRow(order *models.Order) error {
-	err := db.db.Debug().Create(&order)
+	err := db.db.Debug().Create(&order).Error
 	if err != nil {
 		return errors.New("error from InsertRow to db")
 	}
@@ -50,19 +50,14 @@ func (db *Database) GetRowById(id uint) (*models.Order, error) {
 	}
 	return &order, nil
 }
-func (db *Database) GetAllRows() ([]models.Order, error) {
+func (db *Database) GetAllRows() (*[]models.Order, error) {
+	var orders = new([]models.Order)
 
-	orders := []models.Order{}
+	err := db.db.Debug().Preload("Delivery").Preload("Payment").Preload("Items").Model(&models.Order{}).Limit(10).Find(&orders).Error
 
-	//err := db.db.Debug().Model(&models.Order{}).Limit(10).Find(&orders).Error
-	one := db.db.Debug().Preload("Delivery").Preload("Payment").Preload("Items").Model(&models.Order{})
-	two := one.Limit(10)
-	three := two.Find(&orders).Error
-	fmt.Println(three)
-	//err := db.db.Debug().Preload("Delivery").Preload("Payment").Preload("Items").Model(&models.Order{}).Limit(10).Find(&orders).Error
-	//if err != nil {
-	//	return nil, errors.New("can't get all rows from db")
-	//
-	//}
+	if err != nil {
+		return nil, errors.New("can't get all rows from db")
+
+	}
 	return orders, nil
 }

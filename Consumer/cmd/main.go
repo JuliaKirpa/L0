@@ -6,6 +6,7 @@ import (
 	"NatsMC/Consumer/internal/handler"
 	"NatsMC/Consumer/internal/nats"
 	"NatsMC/Consumer/internal/repository"
+	"NatsMC/Consumer/pkg"
 	"context"
 	"log"
 	"os"
@@ -26,19 +27,23 @@ func main() {
 		log.Fatalf("Err from gorm connection %s", err)
 	}
 
-	caches := repository.New()
+	natsStr, err := nats.Connecting(ctx)
+	if err != nil {
+		log.Fatalf("can't create NATS-streaming connection: %s", err)
+	}
+
+	orders := make(chan []byte, 10)
+
+	caches := repository.New(db)
+	repos := repository.NewRepository(db, caches)
+	handlers := handler.NewHandler(repos, orders)
+
 	err = caches.Upload(ctx)
 	if err != nil {
 		log.Fatalf("cache wasn't uploaded: %s", err)
 	}
 
-	natsStr, err := nats.Connecting("prod", ctx)
-	if err != nil {
-		log.Fatalf("can't create NATS-streaming connection: %s", err)
-	}
-
-	repos := repository.NewRepository(db, caches)
-	handlers := handler.NewHandler(repos)
+	go ServiceStart(natsStr, repos, handlers)
 
 	server := new(api.Server)
 
@@ -55,5 +60,25 @@ func main() {
 
 	if err := server.Run("8080", handlers.InitRoutes()); err != nil {
 		log.Fatalf("error to running server %s", err.Error())
+	}
+}
+
+func ServiceStart(nats *nats.Connector, repos *repository.Repository, handler *handler.Handler) {
+	for {
+		message, err := nats.GetMessage()
+		if err != nil {
+			log.Fatalf("NATS: %s", err)
+		}
+		order, err := pkg.ValidateMessage(message)
+		if err != nil {
+			log.Fatalf("Validator: %s", err)
+		}
+
+		err = repos.Db.InsertRow(order)
+		if err != nil {
+			log.Fatalf("DB: %s", err)
+		}
+		repos.Cache.Insert(order)
+		*handler.Orders <- message
 	}
 }

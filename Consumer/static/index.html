@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <title>Subscriber</title>
 </head>
@@ -9,9 +9,9 @@
 <div id="messages"></div>
 
 <script type="text/javascript">
-  e1 = new EventSource('/events/channel-1');
-  e1.onmessage = function(event) {
-    document.getElementById('messages').innerHTML += 'New order: ' + JSON.parse(event.data) + '<br>';
+  e = new EventSource('/events/channel-1');
+  e.onmessage = function(event) {
+    document.getElementById('messages').innerHTML += 'New order: ' + event.data + '<br>';
   };
 </script>
 </body>

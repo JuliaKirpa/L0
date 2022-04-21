@@ -19,12 +19,13 @@ type Cache struct {
 	orders   map[uint]models.Order
 }
 
-func New() *Cache {
+func New(db *Database) *Cache {
 	orders := make(map[uint]models.Order)
 
 	cache := Cache{
-		RWMutex: sync.RWMutex{},
-		orders:  orders,
+		RWMutex:  sync.RWMutex{},
+		database: db,
+		orders:   orders,
 	}
 
 	return &cache
@@ -35,7 +36,6 @@ func (c *Cache) Insert(order *models.Order) {
 	defer c.Unlock()
 
 	c.orders[order.OrderID] = *order
-
 }
 
 func (c *Cache) Upload(context context.Context) error {
@@ -43,7 +43,7 @@ func (c *Cache) Upload(context context.Context) error {
 	if err != nil {
 		return err
 	}
-	for _, value := range orders {
+	for _, value := range *orders {
 		c.orders[value.OrderID] = value
 	}
 	return nil

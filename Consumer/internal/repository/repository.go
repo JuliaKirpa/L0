@@ -5,6 +5,6 @@ type Repository struct {
 	Cache Cacher
 }
 
-func NewRepository(db *Database, cache *Cache) *Repository {
+func NewRepository(db DataBase, cache Cacher) *Repository {
 	return &Repository{Db: db, Cache: cache}
 }
