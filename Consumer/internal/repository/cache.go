@@ -10,7 +10,7 @@ import (
 type Cacher interface {
 	Upload(context context.Context) error
 	GetById(id uint) (*models.Order, error)
-	Insert(order *models.Order)
+	Insert(order models.Order, id uint)
 }
 
 type Cache struct {
@@ -31,11 +31,11 @@ func New(db *Database) *Cache {
 	return &cache
 }
 
-func (c *Cache) Insert(order *models.Order) {
+func (c *Cache) Insert(order models.Order, id uint) {
 	c.Lock()
 	defer c.Unlock()
 
-	c.orders[order.OrderID] = *order
+	c.orders[id] = order
 }
 
 func (c *Cache) Upload(context context.Context) error {

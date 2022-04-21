@@ -6,6 +6,7 @@ import (
 	"NatsMC/Consumer/internal/handler"
 	"NatsMC/Consumer/internal/nats"
 	"NatsMC/Consumer/internal/repository"
+	"NatsMC/Consumer/internal/sseServ"
 	"NatsMC/Consumer/pkg"
 	"context"
 	"log"
@@ -33,10 +34,11 @@ func main() {
 	}
 
 	orders := make(chan []byte, 10)
+	sse := sseServ.NewSSE()
 
 	caches := repository.New(db)
 	repos := repository.NewRepository(db, caches)
-	handlers := handler.NewHandler(repos, orders)
+	handlers := handler.NewHandler(repos, orders, sse)
 
 	err = caches.Upload(ctx)
 	if err != nil {
@@ -55,6 +57,7 @@ func main() {
 
 		_ = natsStr.Close()
 		_ = server.Shutdown(context.Background())
+		_ = sse.Server.Shutdown
 		cancel()
 	}()
 
@@ -74,11 +77,11 @@ func ServiceStart(nats *nats.Connector, repos *repository.Repository, handler *h
 			log.Fatalf("Validator: %s", err)
 		}
 
-		err = repos.Db.InsertRow(order)
+		id, err := repos.Db.InsertRow(order)
 		if err != nil {
 			log.Fatalf("DB: %s", err)
 		}
-		repos.Cache.Insert(order)
+		repos.Cache.Insert(*order, id)
 		*handler.Orders <- message
 	}
 }

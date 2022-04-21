@@ -20,14 +20,12 @@ func (h *Handler) getById(c *gin.Context) {
 }
 
 func (h *Handler) streamListen(c *gin.Context) {
-	s := sse.NewServer(nil)
 
 	go func() {
 		for value := range *h.Orders {
-			s.SendMessage("", sse.SimpleMessage(string(value)))
+			h.SSE.Server.SendMessage("/events/channel-1", sse.SimpleMessage(string(value)))
 		}
 	}()
 
-	s.ServeHTTP(c.Writer, c.Request)
-	defer s.Shutdown()
+	h.SSE.Server.ServeHTTP(c.Writer, c.Request)
 }
