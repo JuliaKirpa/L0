@@ -37,7 +37,10 @@ func (c *Connector) GetMessage() ([]byte, error) {
 	}
 
 	wg.Wait()
-	sub.Unsubscribe()
+	err = sub.Unsubscribe()
+	if err != nil {
+		errors.New("can't unsubscribe")
+	}
 	return message, nil
 }
 

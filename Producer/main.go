@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/nats-io/stan.go"
 	"io/ioutil"
+	"log"
 	"time"
 )
 
@@ -20,7 +21,10 @@ func main() {
 	}
 
 	for i := 0; i <= 100; i++ {
-		sc.Publish("static", byteValue)
+		err := sc.Publish("static", byteValue)
+		if err != nil {
+			log.Fatalf("can't publish mess: %s", err)
+		}
 		fmt.Println("Push ", i)
 		time.Sleep(5 * time.Second)
 	}

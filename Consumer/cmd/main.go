@@ -7,12 +7,14 @@ import (
 	"NatsMC/Consumer/internal/nats"
 	"NatsMC/Consumer/internal/repository"
 	"NatsMC/Consumer/internal/sseServ"
+	"NatsMC/Consumer/models"
 	"NatsMC/Consumer/pkg"
 	"context"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 func main() {
@@ -33,8 +35,10 @@ func main() {
 		log.Fatalf("can't create NATS-streaming connection: %s", err)
 	}
 
-	orders := make(chan []byte, 10)
+	orders := make(chan *models.Order, 10)
 	sse := sseServ.NewSSE()
+
+	go sse.StreamListen(orders)
 
 	caches := repository.New(db)
 	repos := repository.NewRepository(db, caches)
@@ -45,7 +49,7 @@ func main() {
 		log.Fatalf("cache wasn't uploaded: %s", err)
 	}
 
-	go ServiceStart(natsStr, repos, handlers)
+	go ServiceStart(natsStr, repos, orders)
 
 	server := new(api.Server)
 
@@ -66,7 +70,7 @@ func main() {
 	}
 }
 
-func ServiceStart(nats *nats.Connector, repos *repository.Repository, handler *handler.Handler) {
+func ServiceStart(nats *nats.Connector, repos *repository.Repository, orders chan *models.Order) {
 	for {
 		message, err := nats.GetMessage()
 		if err != nil {
@@ -82,6 +86,7 @@ func ServiceStart(nats *nats.Connector, repos *repository.Repository, handler *h
 			log.Fatalf("DB: %s", err)
 		}
 		repos.Cache.Insert(*order, id)
-		*handler.Orders <- message
+		orders <- order
+		time.Sleep(2 * time.Second)
 	}
 }
